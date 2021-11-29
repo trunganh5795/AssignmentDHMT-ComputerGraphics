@@ -1,4 +1,4 @@
-﻿// Truong Ngoc Trung Anh - 2020004
+// Truong Ngoc Trung Anh - 2020004
 
 #include <math.h>
 #include <iostream>
@@ -6,14 +6,10 @@
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <cmath>
-
 #define PI 3.14159265358979323846
-#define COLORNUM 14
-#define NUM 36
 
 using namespace std;
 
-#pragma region
 class PointXYZ
 {
 public:
@@ -24,13 +20,18 @@ public:
 		y = dy;
 		z = dz;
 	}
-	void set(PointXYZ &p)
+	void set(PointXYZ &ptXYZ)
 	{
-		x = p.x;
-		y = p.y;
-		z = p.z;
+		x = ptXYZ.x;
+		y = ptXYZ.y;
+		z = ptXYZ.z;
 	}
-	PointXYZ() { x = y = z = 0; }
+	PointXYZ()
+	{
+		x = 0;
+		y = 0;
+		z = 0;
+	}
 	PointXYZ(float dx, float dy, float dz)
 	{
 		x = dx;
@@ -39,78 +40,7 @@ public:
 	}
 };
 
-class IntRect
-{
-public:
-	IntRect()
-	{
-		l = 0;
-		r = 100;
-		b = 0;
-		t = 100;
-	} // constructor
-	IntRect(int left, int right, int bottom, int top)
-	{
-		l = left;
-		r = right;
-		b = bottom;
-		t = top;
-	}
-	void set(int left, int right, int bottom, int top)
-	{
-		l = left;
-		r = right;
-		b = bottom;
-		t = top;
-	}
-	void draw()
-	{
-		glRecti(l, b, r, t);
-		glFlush();
-	} // draw this rectangle using OpenGL
-	int getWidth() { return (r - l); }
-	int getHeight() { return (t - b); }
-
-private:
-	int l, r, b, t;
-};
-
-class RealRect
-{
-public:
-	RealRect()
-	{
-		l = 0;
-		r = 100;
-		b = 0;
-		t = 100;
-	} // constructor
-	RealRect(float left, float right, float bottom, float top)
-	{
-		l = left;
-		r = right;
-		b = bottom;
-		t = top;
-	}
-	void set(float left, float right, float bottom, float top)
-	{
-		l = left;
-		r = right;
-		b = bottom;
-		t = top;
-	}
-	float getWidth() { return (r - l); }
-	float getHeight() { return (t - b); }
-	void draw()
-	{
-		glRectf(l, b, r, t);
-		glFlush();
-	}; // draw this rectangle using OpenGL
-private:
-	float l, r, b, t;
-};
-
-class Vector3
+class VectorXYZ
 {
 public:
 	float x, y, z;
@@ -120,7 +50,7 @@ public:
 		y = dy;
 		z = dz;
 	}
-	void set(Vector3 &v)
+	void set(VectorXYZ &v)
 	{
 		x = v.x;
 		y = v.y;
@@ -133,46 +63,44 @@ public:
 		z = -z;
 	}
 	void normalize();
-	Vector3() { x = y = z = 0; }
-	Vector3(float dx, float dy, float dz)
+	VectorXYZ() { x = y = z = 0; }
+	VectorXYZ(float dx, float dy, float dz)
 	{
 		x = dx;
 		y = dy;
 		z = dz;
 	}
-	Vector3(Vector3 &v)
+	VectorXYZ(VectorXYZ &v)
 	{
 		x = v.x;
 		y = v.y;
 		z = v.z;
 	}
-	Vector3 cross(Vector3 b);
-	float dot(Vector3 b);
+	VectorXYZ cross(VectorXYZ b);
+	float dot(VectorXYZ b);
 };
 
-Vector3 Vector3::cross(Vector3 b)
+VectorXYZ VectorXYZ::cross(VectorXYZ b)
 {
-	Vector3 c(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x);
+	VectorXYZ c(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x);
 	return c;
 }
-float Vector3::dot(Vector3 b)
+float VectorXYZ::dot(VectorXYZ b)
 {
 	return x * b.x + y * b.y + z * b.z;
 }
-void Vector3::normalize()
+void VectorXYZ::normalize()
 {
-	float temp = sqrt(x * x + y * y + z * z);
-	x = x / temp;
-	y = y / temp;
-	z = z / temp;
+	float tmp = sqrt(x * x + y * y + z * z);
+	x = x / tmp;
+	y = y / tmp;
+	z = z / tmp;
 }
-#pragma endregion
 
-#pragma region
-class VertexID
+class Vertex
 {
 public:
-	int vertIndex;
+	int vertexIndex;
 	int colorIndex;
 };
 
@@ -180,8 +108,8 @@ class Face
 {
 public:
 	int nVerts;
-	VertexID *vert;
-	Vector3 facenorm;
+	Vertex *vert;
+	VectorXYZ facenorm;
 
 	Face()
 	{
@@ -261,7 +189,7 @@ void Mesh::DrawWireframe()
 		glBegin(GL_POLYGON);
 		for (int v = 0; v < face[f].nVerts; v++)
 		{
-			int iv = face[f].vert[v].vertIndex;
+			int iv = face[f].vert[v].vertexIndex;
 			glVertex3f(pt[iv].x, pt[iv].y, pt[iv].z);
 		}
 		glEnd();
@@ -275,8 +203,8 @@ void Mesh::CalculateFacesNorm()
 		float mx = 0, my = 0, mz = 0;
 		for (int v = 0; v < face[f].nVerts; v++)
 		{
-			int iv = face[f].vert[v].vertIndex;
-			int next = face[f].vert[(v + 1) % face[f].nVerts].vertIndex;
+			int iv = face[f].vert[v].vertexIndex;
+			int next = face[f].vert[(v + 1) % face[f].nVerts].vertexIndex;
 			mx += (pt[iv].y - pt[next].y) * (pt[iv].z + pt[next].z);
 			my += (pt[iv].z - pt[next].z) * (pt[iv].x + pt[next].x);
 			mz += (pt[iv].x - pt[next].x) * (pt[iv].y + pt[next].y);
@@ -293,7 +221,7 @@ void Mesh::Draw()
 		glBegin(GL_POLYGON);
 		for (int v = 0; v < face[f].nVerts; v++)
 		{
-			int iv = face[f].vert[v].vertIndex;
+			int iv = face[f].vert[v].vertexIndex;
 			glNormal3f(face[f].facenorm.x, face[f].facenorm.y, face[f].facenorm.z);
 			glVertex3f(pt[iv].x, pt[iv].y, pt[iv].z);
 		}
@@ -335,58 +263,58 @@ void Mesh::veHinhTru(int N, float chieuCao, float banKinh)
 		if (i < N - 1)
 		{
 			face[i].nVerts = 3;
-			face[i].vert = new VertexID[face[i].nVerts];
+			face[i].vert = new Vertex[face[i].nVerts];
 
-			face[i].vert[0].vertIndex = i;
-			face[i].vert[1].vertIndex = i + 1;
-			face[i].vert[2].vertIndex = 2 * N;
+			face[i].vert[0].vertexIndex = i;
+			face[i].vert[1].vertexIndex = i + 1;
+			face[i].vert[2].vertexIndex = 2 * N;
 		}
 		else if (i == N - 1)
 		{
 			face[i].nVerts = 3;
-			face[i].vert = new VertexID[face[i].nVerts];
+			face[i].vert = new Vertex[face[i].nVerts];
 
-			face[i].vert[0].vertIndex = i;
-			face[i].vert[1].vertIndex = 0;
-			face[i].vert[2].vertIndex = 2 * N;
+			face[i].vert[0].vertexIndex = i;
+			face[i].vert[1].vertexIndex = 0;
+			face[i].vert[2].vertexIndex = 2 * N;
 		}
 		else if (i < 2 * N - 1)
 		{
 			face[i].nVerts = 3;
-			face[i].vert = new VertexID[face[i].nVerts];
+			face[i].vert = new Vertex[face[i].nVerts];
 
-			face[i].vert[0].vertIndex = i;
-			face[i].vert[1].vertIndex = 2 * N + 1;
-			face[i].vert[2].vertIndex = i + 1;
+			face[i].vert[0].vertexIndex = i;
+			face[i].vert[1].vertexIndex = 2 * N + 1;
+			face[i].vert[2].vertexIndex = i + 1;
 		}
 		else if (i == 2 * N - 1)
 		{
 			face[i].nVerts = 3;
-			face[i].vert = new VertexID[face[i].nVerts];
+			face[i].vert = new Vertex[face[i].nVerts];
 
-			face[i].vert[0].vertIndex = i;
-			face[i].vert[1].vertIndex = 2 * N + 1;
-			face[i].vert[2].vertIndex = N;
+			face[i].vert[0].vertexIndex = i;
+			face[i].vert[1].vertexIndex = 2 * N + 1;
+			face[i].vert[2].vertexIndex = N;
 		}
 		else if (i < 3 * N - 1)
 		{
 			face[i].nVerts = 4;
-			face[i].vert = new VertexID[face[i].nVerts];
+			face[i].vert = new Vertex[face[i].nVerts];
 
-			face[i].vert[0].vertIndex = i - 2 * N + 1;
-			face[i].vert[1].vertIndex = i - 2 * N;
-			face[i].vert[2].vertIndex = i - N;
-			face[i].vert[3].vertIndex = i - N + 1;
+			face[i].vert[0].vertexIndex = i - 2 * N + 1;
+			face[i].vert[1].vertexIndex = i - 2 * N;
+			face[i].vert[2].vertexIndex = i - N;
+			face[i].vert[3].vertexIndex = i - N + 1;
 		}
 		else
 		{
 			face[i].nVerts = 4;
-			face[i].vert = new VertexID[face[i].nVerts];
+			face[i].vert = new Vertex[face[i].nVerts];
 
-			face[i].vert[0].vertIndex = 0;
-			face[i].vert[1].vertIndex = N - 1;
-			face[i].vert[2].vertIndex = 2 * N - 1;
-			face[i].vert[3].vertIndex = N;
+			face[i].vert[0].vertexIndex = 0;
+			face[i].vert[1].vertexIndex = N - 1;
+			face[i].vert[2].vertexIndex = 2 * N - 1;
+			face[i].vert[3].vertexIndex = N;
 		}
 		for (int j = 0; j < face[i].nVerts; j++)
 			face[i].vert[j].colorIndex = i;
@@ -462,12 +390,12 @@ void Mesh::veCanhQuat(int N, float rong, float cao, float banKinhNho)
 	for (int j = 0; j < (M - 1); j++)
 	{
 		face[i].nVerts = 4;
-		face[i].vert = new VertexID[face[i].nVerts];
+		face[i].vert = new Vertex[face[i].nVerts];
 
-		face[i].vert[0].vertIndex = j;
-		face[i].vert[1].vertIndex = j + 1;
-		face[i].vert[2].vertIndex = j + M + 1;
-		face[i].vert[3].vertIndex = j + M;
+		face[i].vert[0].vertexIndex = j;
+		face[i].vert[1].vertexIndex = j + 1;
+		face[i].vert[2].vertexIndex = j + M + 1;
+		face[i].vert[3].vertexIndex = j + M;
 
 		for (int k = 0; k < face[i].nVerts; k++)
 		{
@@ -480,12 +408,12 @@ void Mesh::veCanhQuat(int N, float rong, float cao, float banKinhNho)
 	for (int j = 0; j < (M - 1); j++)
 	{
 		face[i].nVerts = 4;
-		face[i].vert = new VertexID[face[i].nVerts];
+		face[i].vert = new Vertex[face[i].nVerts];
 
-		face[i].vert[0].vertIndex = j;
-		face[i].vert[1].vertIndex = j + 1;
-		face[i].vert[2].vertIndex = 2 * M + 8;
-		face[i].vert[3].vertIndex = 2 * M + 8;
+		face[i].vert[0].vertexIndex = j;
+		face[i].vert[1].vertexIndex = j + 1;
+		face[i].vert[2].vertexIndex = 2 * M + 8;
+		face[i].vert[3].vertexIndex = 2 * M + 8;
 
 		for (int k = 0; k < face[i].nVerts; k++)
 		{
@@ -498,12 +426,12 @@ void Mesh::veCanhQuat(int N, float rong, float cao, float banKinhNho)
 	for (int j = 0; j < (M - 1); j++)
 	{
 		face[i].nVerts = 4;
-		face[i].vert = new VertexID[face[i].nVerts];
+		face[i].vert = new Vertex[face[i].nVerts];
 
-		face[i].vert[0].vertIndex = j + M;
-		face[i].vert[1].vertIndex = j + M + 1;
-		face[i].vert[2].vertIndex = 2 * M + 9;
-		face[i].vert[3].vertIndex = 2 * M + 9;
+		face[i].vert[0].vertexIndex = j + M;
+		face[i].vert[1].vertexIndex = j + M + 1;
+		face[i].vert[2].vertexIndex = 2 * M + 9;
+		face[i].vert[3].vertexIndex = 2 * M + 9;
 
 		for (int k = 0; k < face[i].nVerts; k++)
 		{
@@ -515,12 +443,12 @@ void Mesh::veCanhQuat(int N, float rong, float cao, float banKinhNho)
 
 	// To màu mặt trái hình thang (1/6)
 	face[i].nVerts = 4;
-	face[i].vert = new VertexID[face[i].nVerts];
+	face[i].vert = new Vertex[face[i].nVerts];
 
-	face[i].vert[0].vertIndex = 2 * M;
-	face[i].vert[1].vertIndex = 2 * M + 1;
-	face[i].vert[2].vertIndex = 2 * M + 5;
-	face[i].vert[3].vertIndex = 2 * M + 4;
+	face[i].vert[0].vertexIndex = 2 * M;
+	face[i].vert[1].vertexIndex = 2 * M + 1;
+	face[i].vert[2].vertexIndex = 2 * M + 5;
+	face[i].vert[3].vertexIndex = 2 * M + 4;
 	for (int k = 0; k < face[i].nVerts; k++)
 	{
 		face[i].vert[k].colorIndex = mau;
@@ -529,12 +457,12 @@ void Mesh::veCanhQuat(int N, float rong, float cao, float banKinhNho)
 	i++;
 	// Tô màu mặt trái hình thang (2/6)
 	face[i].nVerts = 4;
-	face[i].vert = new VertexID[face[i].nVerts];
+	face[i].vert = new Vertex[face[i].nVerts];
 
-	face[i].vert[0].vertIndex = 2 * M + 2;
-	face[i].vert[1].vertIndex = 2 * M + 3;
-	face[i].vert[2].vertIndex = 2 * M + 7;
-	face[i].vert[3].vertIndex = 2 * M + 6;
+	face[i].vert[0].vertexIndex = 2 * M + 2;
+	face[i].vert[1].vertexIndex = 2 * M + 3;
+	face[i].vert[2].vertexIndex = 2 * M + 7;
+	face[i].vert[3].vertexIndex = 2 * M + 6;
 	for (int k = 0; k < face[i].nVerts; k++)
 	{
 		face[i].vert[k].colorIndex = mau;
@@ -543,12 +471,12 @@ void Mesh::veCanhQuat(int N, float rong, float cao, float banKinhNho)
 	i++;
 	// Tô màu mặt chiều dày đáy hình thang (3/6)
 	face[i].nVerts = 4;
-	face[i].vert = new VertexID[face[i].nVerts];
+	face[i].vert = new Vertex[face[i].nVerts];
 
-	face[i].vert[0].vertIndex = 2 * M + 7;
-	face[i].vert[1].vertIndex = 2 * M + 6;
-	face[i].vert[2].vertIndex = 2 * M + 4;
-	face[i].vert[3].vertIndex = 2 * M + 5;
+	face[i].vert[0].vertexIndex = 2 * M + 7;
+	face[i].vert[1].vertexIndex = 2 * M + 6;
+	face[i].vert[2].vertexIndex = 2 * M + 4;
+	face[i].vert[3].vertexIndex = 2 * M + 5;
 	for (int k = 0; k < face[i].nVerts; k++)
 	{
 		face[i].vert[k].colorIndex = mau;
@@ -557,12 +485,12 @@ void Mesh::veCanhQuat(int N, float rong, float cao, float banKinhNho)
 	i++;
 	// Tô màu mặt chiều dày đỉnh hình thang (4/6)
 	face[i].nVerts = 4;
-	face[i].vert = new VertexID[face[i].nVerts];
+	face[i].vert = new Vertex[face[i].nVerts];
 
-	face[i].vert[0].vertIndex = 2 * M + 0;
-	face[i].vert[1].vertIndex = 2 * M + 1;
-	face[i].vert[2].vertIndex = 2 * M + 3;
-	face[i].vert[3].vertIndex = 2 * M + 2;
+	face[i].vert[0].vertexIndex = 2 * M + 0;
+	face[i].vert[1].vertexIndex = 2 * M + 1;
+	face[i].vert[2].vertexIndex = 2 * M + 3;
+	face[i].vert[3].vertexIndex = 2 * M + 2;
 	for (int k = 0; k < face[i].nVerts; k++)
 	{
 		face[i].vert[k].colorIndex = mau;
@@ -571,12 +499,12 @@ void Mesh::veCanhQuat(int N, float rong, float cao, float banKinhNho)
 	i++;
 	// Tô màu mặt chiều dày mặt bên x > 0  đỉnh hình thang (5/6)
 	face[i].nVerts = 4;
-	face[i].vert = new VertexID[face[i].nVerts];
+	face[i].vert = new Vertex[face[i].nVerts];
 
-	face[i].vert[0].vertIndex = 2 * M + 0;
-	face[i].vert[1].vertIndex = 2 * M + 2;
-	face[i].vert[2].vertIndex = 2 * M + 6;
-	face[i].vert[3].vertIndex = 2 * M + 4;
+	face[i].vert[0].vertexIndex = 2 * M + 0;
+	face[i].vert[1].vertexIndex = 2 * M + 2;
+	face[i].vert[2].vertexIndex = 2 * M + 6;
+	face[i].vert[3].vertexIndex = 2 * M + 4;
 	for (int k = 0; k < face[i].nVerts; k++)
 	{
 		face[i].vert[k].colorIndex = mau;
@@ -585,12 +513,12 @@ void Mesh::veCanhQuat(int N, float rong, float cao, float banKinhNho)
 	i++;
 	// Tô màu mặt chiều dày mặt bên x < 0  đỉnh hình thang (6/6)
 	face[i].nVerts = 4;
-	face[i].vert = new VertexID[face[i].nVerts];
+	face[i].vert = new Vertex[face[i].nVerts];
 
-	face[i].vert[0].vertIndex = 2 * M + 1;
-	face[i].vert[1].vertIndex = 2 * M + 3;
-	face[i].vert[2].vertIndex = 2 * M + 7;
-	face[i].vert[3].vertIndex = 2 * M + 5;
+	face[i].vert[0].vertexIndex = 2 * M + 1;
+	face[i].vert[1].vertexIndex = 2 * M + 3;
+	face[i].vert[2].vertexIndex = 2 * M + 7;
+	face[i].vert[3].vertexIndex = 2 * M + 5;
 	for (int k = 0; k < face[i].nVerts; k++)
 	{
 		face[i].vert[k].colorIndex = mau;
@@ -599,12 +527,12 @@ void Mesh::veCanhQuat(int N, float rong, float cao, float banKinhNho)
 	i++;
 	// Tô màu mặt trái tam giác.
 	face[i].nVerts = 3;
-	face[i].vert = new VertexID[face[i].nVerts];
+	face[i].vert = new Vertex[face[i].nVerts];
 
-	face[i].vert[0].vertIndex = 2 * M + 5;
-	face[i].vert[1].vertIndex = 2 * M + 4;
-	face[i].vert[2].vertIndex = 2 * M + 10;
-	// face[i].vert[3].vertIndex = 2 * M + 5;
+	face[i].vert[0].vertexIndex = 2 * M + 5;
+	face[i].vert[1].vertexIndex = 2 * M + 4;
+	face[i].vert[2].vertexIndex = 2 * M + 10;
+	// face[i].vert[3].vertexIndex = 2 * M + 5;
 	for (int k = 0; k < face[i].nVerts; k++)
 	{
 		face[i].vert[k].colorIndex = mau;
@@ -613,12 +541,12 @@ void Mesh::veCanhQuat(int N, float rong, float cao, float banKinhNho)
 	i++;
 	// Tô màu mặt phải tam giác.
 	face[i].nVerts = 3;
-	face[i].vert = new VertexID[face[i].nVerts];
+	face[i].vert = new Vertex[face[i].nVerts];
 
-	face[i].vert[0].vertIndex = 2 * M + 6;
-	face[i].vert[1].vertIndex = 2 * M + 7;
-	face[i].vert[2].vertIndex = 2 * M + 11;
-	// face[i].vert[3].vertIndex = 2 * M + 5;
+	face[i].vert[0].vertexIndex = 2 * M + 6;
+	face[i].vert[1].vertexIndex = 2 * M + 7;
+	face[i].vert[2].vertexIndex = 2 * M + 11;
+	// face[i].vert[3].vertexIndex = 2 * M + 5;
 	for (int k = 0; k < face[i].nVerts; k++)
 	{
 		face[i].vert[k].colorIndex = mau;
@@ -627,12 +555,12 @@ void Mesh::veCanhQuat(int N, float rong, float cao, float banKinhNho)
 	i++;
 	// Tô màu mặt bên tam giác x < 0.
 	face[i].nVerts = 4;
-	face[i].vert = new VertexID[face[i].nVerts];
+	face[i].vert = new Vertex[face[i].nVerts];
 
-	face[i].vert[0].vertIndex = 2 * M + 5;
-	face[i].vert[1].vertIndex = 2 * M + 10;
-	face[i].vert[2].vertIndex = 2 * M + 11;
-	face[i].vert[3].vertIndex = 2 * M + 7;
+	face[i].vert[0].vertexIndex = 2 * M + 5;
+	face[i].vert[1].vertexIndex = 2 * M + 10;
+	face[i].vert[2].vertexIndex = 2 * M + 11;
+	face[i].vert[3].vertexIndex = 2 * M + 7;
 	for (int k = 0; k < face[i].nVerts; k++)
 	{
 		face[i].vert[k].colorIndex = mau;
@@ -641,12 +569,12 @@ void Mesh::veCanhQuat(int N, float rong, float cao, float banKinhNho)
 	i++;
 	// Tô màu mặt bên tam giác x > 0.
 	face[i].nVerts = 4;
-	face[i].vert = new VertexID[face[i].nVerts];
+	face[i].vert = new Vertex[face[i].nVerts];
 
-	face[i].vert[0].vertIndex = 2 * M + 4;
-	face[i].vert[1].vertIndex = 2 * M + 10;
-	face[i].vert[2].vertIndex = 2 * M + 11;
-	face[i].vert[3].vertIndex = 2 * M + 6;
+	face[i].vert[0].vertexIndex = 2 * M + 4;
+	face[i].vert[1].vertexIndex = 2 * M + 10;
+	face[i].vert[2].vertexIndex = 2 * M + 11;
+	face[i].vert[3].vertexIndex = 2 * M + 6;
 	for (int k = 0; k < face[i].nVerts; k++)
 	{
 		face[i].vert[k].colorIndex = mau;
@@ -655,12 +583,12 @@ void Mesh::veCanhQuat(int N, float rong, float cao, float banKinhNho)
 	i++;
 	// Tô màu mặt đáy tam giác.
 	face[i].nVerts = 4;
-	face[i].vert = new VertexID[face[i].nVerts];
+	face[i].vert = new Vertex[face[i].nVerts];
 
-	face[i].vert[0].vertIndex = 2 * M + 4;
-	face[i].vert[1].vertIndex = 2 * M + 5;
-	face[i].vert[2].vertIndex = 2 * M + 6;
-	face[i].vert[3].vertIndex = 2 * M + 7;
+	face[i].vert[0].vertexIndex = 2 * M + 4;
+	face[i].vert[1].vertexIndex = 2 * M + 5;
+	face[i].vert[2].vertexIndex = 2 * M + 6;
+	face[i].vert[3].vertexIndex = 2 * M + 7;
 	for (int k = 0; k < face[i].nVerts; k++)
 	{
 		face[i].vert[k].colorIndex = mau;
@@ -712,12 +640,12 @@ void Mesh::veGoiDo(int N, float chieuCao, float BKtrong, float BKngoai)
 	for (int j = 0; j < N - 1; j++)
 	{
 		face[i].nVerts = 4;
-		face[i].vert = new VertexID[face[i].nVerts];
+		face[i].vert = new Vertex[face[i].nVerts];
 
-		face[i].vert[0].vertIndex = j;
-		face[i].vert[1].vertIndex = j + 1;
-		face[i].vert[2].vertIndex = 2 * N + 1 + j;
-		face[i].vert[3].vertIndex = 2 * N + j;
+		face[i].vert[0].vertexIndex = j;
+		face[i].vert[1].vertexIndex = j + 1;
+		face[i].vert[2].vertexIndex = 2 * N + 1 + j;
+		face[i].vert[3].vertexIndex = 2 * N + j;
 
 		for (int k = 0; k < face[i].nVerts; k++)
 		{
@@ -730,30 +658,12 @@ void Mesh::veGoiDo(int N, float chieuCao, float BKtrong, float BKngoai)
 	for (int j = 0; j < N - 1; j++)
 	{
 		face[i].nVerts = 4;
-		face[i].vert = new VertexID[face[i].nVerts];
+		face[i].vert = new Vertex[face[i].nVerts];
 
-		face[i].vert[0].vertIndex = N + j;
-		face[i].vert[1].vertIndex = N + j + 1;
-		face[i].vert[2].vertIndex = 3 * N + 1 + j;
-		face[i].vert[3].vertIndex = 3 * N + j;
-
-		for (int k = 0; k < face[i].nVerts; k++)
-		{
-			face[i].vert[k].colorIndex = mau;
-		}
-		mau++;
-		i++;
-	}
-	// mặt bỏ (độ dày)
-	for (int j = 0; j < N - 1; j++)
-	{
-		face[i].nVerts = 4;
-		face[i].vert = new VertexID[face[i].nVerts];
-
-		face[i].vert[0].vertIndex = j;
-		face[i].vert[1].vertIndex = j + 1;
-		face[i].vert[2].vertIndex = N + 1 + j;
-		face[i].vert[3].vertIndex = N + j;
+		face[i].vert[0].vertexIndex = N + j;
+		face[i].vert[1].vertexIndex = N + j + 1;
+		face[i].vert[2].vertexIndex = 3 * N + 1 + j;
+		face[i].vert[3].vertexIndex = 3 * N + j;
 
 		for (int k = 0; k < face[i].nVerts; k++)
 		{
@@ -766,12 +676,30 @@ void Mesh::veGoiDo(int N, float chieuCao, float BKtrong, float BKngoai)
 	for (int j = 0; j < N - 1; j++)
 	{
 		face[i].nVerts = 4;
-		face[i].vert = new VertexID[face[i].nVerts];
+		face[i].vert = new Vertex[face[i].nVerts];
 
-		face[i].vert[0].vertIndex = 2 * N + j;
-		face[i].vert[1].vertIndex = 2 * N + j + 1;
-		face[i].vert[2].vertIndex = 3 * N + 1 + j;
-		face[i].vert[3].vertIndex = 3 * N + j;
+		face[i].vert[0].vertexIndex = j;
+		face[i].vert[1].vertexIndex = j + 1;
+		face[i].vert[2].vertexIndex = N + 1 + j;
+		face[i].vert[3].vertexIndex = N + j;
+
+		for (int k = 0; k < face[i].nVerts; k++)
+		{
+			face[i].vert[k].colorIndex = mau;
+		}
+		mau++;
+		i++;
+	}
+	// mặt bỏ (độ dày)
+	for (int j = 0; j < N - 1; j++)
+	{
+		face[i].nVerts = 4;
+		face[i].vert = new Vertex[face[i].nVerts];
+
+		face[i].vert[0].vertexIndex = 2 * N + j;
+		face[i].vert[1].vertexIndex = 2 * N + j + 1;
+		face[i].vert[2].vertexIndex = 3 * N + 1 + j;
+		face[i].vert[3].vertexIndex = 3 * N + j;
 
 		for (int k = 0; k < face[i].nVerts; k++)
 		{
@@ -860,12 +788,12 @@ void Mesh::veLK2lo1(int N, float doDay, float KhoangCachTam, float BKtrong, floa
 	for (int j = 0; j < M - 1; j++)
 	{
 		face[i].nVerts = 4;
-		face[i].vert = new VertexID[face[i].nVerts];
+		face[i].vert = new Vertex[face[i].nVerts];
 
-		face[i].vert[0].vertIndex = j;
-		face[i].vert[1].vertIndex = j + 1;
-		face[i].vert[2].vertIndex = 2 * M + 1 + j;
-		face[i].vert[3].vertIndex = 2 * M + j;
+		face[i].vert[0].vertexIndex = j;
+		face[i].vert[1].vertexIndex = j + 1;
+		face[i].vert[2].vertexIndex = 2 * M + 1 + j;
+		face[i].vert[3].vertexIndex = 2 * M + j;
 
 		for (int k = 0; k < face[i].nVerts; k++)
 		{
@@ -878,12 +806,12 @@ void Mesh::veLK2lo1(int N, float doDay, float KhoangCachTam, float BKtrong, floa
 	for (int j = 0; j < M - 1; j++)
 	{
 		face[i].nVerts = 4;
-		face[i].vert = new VertexID[face[i].nVerts];
+		face[i].vert = new Vertex[face[i].nVerts];
 
-		face[i].vert[0].vertIndex = M + j;
-		face[i].vert[1].vertIndex = M + j + 1;
-		face[i].vert[2].vertIndex = 3 * M + 1 + j;
-		face[i].vert[3].vertIndex = 3 * M + j;
+		face[i].vert[0].vertexIndex = M + j;
+		face[i].vert[1].vertexIndex = M + j + 1;
+		face[i].vert[2].vertexIndex = 3 * M + 1 + j;
+		face[i].vert[3].vertexIndex = 3 * M + j;
 
 		for (int k = 0; k < face[i].nVerts; k++)
 		{
@@ -896,12 +824,12 @@ void Mesh::veLK2lo1(int N, float doDay, float KhoangCachTam, float BKtrong, floa
 	for (int j = 0; j < M - 1; j++)
 	{
 		face[i].nVerts = 4;
-		face[i].vert = new VertexID[face[i].nVerts];
+		face[i].vert = new Vertex[face[i].nVerts];
 
-		face[i].vert[0].vertIndex = 2 * M + j;
-		face[i].vert[1].vertIndex = 2 * M + j + 1;
-		face[i].vert[2].vertIndex = 3 * M + 1 + j;
-		face[i].vert[3].vertIndex = 3 * M + j;
+		face[i].vert[0].vertexIndex = 2 * M + j;
+		face[i].vert[1].vertexIndex = 2 * M + j + 1;
+		face[i].vert[2].vertexIndex = 3 * M + 1 + j;
+		face[i].vert[3].vertexIndex = 3 * M + j;
 
 		for (int k = 0; k < face[i].nVerts; k++)
 		{
@@ -914,12 +842,12 @@ void Mesh::veLK2lo1(int N, float doDay, float KhoangCachTam, float BKtrong, floa
 	for (int j = 0; j < M - 1; j++)
 	{
 		face[i].nVerts = 4;
-		face[i].vert = new VertexID[face[i].nVerts];
+		face[i].vert = new Vertex[face[i].nVerts];
 
-		face[i].vert[0].vertIndex = j;
-		face[i].vert[1].vertIndex = j + 1;
-		face[i].vert[2].vertIndex = M + 1 + j;
-		face[i].vert[3].vertIndex = M + j;
+		face[i].vert[0].vertexIndex = j;
+		face[i].vert[1].vertexIndex = j + 1;
+		face[i].vert[2].vertexIndex = M + 1 + j;
+		face[i].vert[3].vertexIndex = M + j;
 
 		for (int k = 0; k < face[i].nVerts; k++)
 		{
@@ -933,12 +861,12 @@ void Mesh::veLK2lo1(int N, float doDay, float KhoangCachTam, float BKtrong, floa
 	for (int j = 0; j < M - 1; j++)
 	{
 		face[i].nVerts = 4;
-		face[i].vert = new VertexID[face[i].nVerts];
+		face[i].vert = new Vertex[face[i].nVerts];
 
-		face[i].vert[0].vertIndex = 4 * M + j;
-		face[i].vert[1].vertIndex = 4 * M + j + 1;
-		face[i].vert[2].vertIndex = 6 * M + 1 + j;
-		face[i].vert[3].vertIndex = 6 * M + j;
+		face[i].vert[0].vertexIndex = 4 * M + j;
+		face[i].vert[1].vertexIndex = 4 * M + j + 1;
+		face[i].vert[2].vertexIndex = 6 * M + 1 + j;
+		face[i].vert[3].vertexIndex = 6 * M + j;
 
 		for (int k = 0; k < face[i].nVerts; k++)
 		{
@@ -951,12 +879,12 @@ void Mesh::veLK2lo1(int N, float doDay, float KhoangCachTam, float BKtrong, floa
 	for (int j = 0; j < M - 1; j++)
 	{
 		face[i].nVerts = 4;
-		face[i].vert = new VertexID[face[i].nVerts];
+		face[i].vert = new Vertex[face[i].nVerts];
 
-		face[i].vert[0].vertIndex = 5 * M + j;
-		face[i].vert[1].vertIndex = 5 * M + j + 1;
-		face[i].vert[2].vertIndex = 7 * M + 1 + j;
-		face[i].vert[3].vertIndex = 7 * M + j;
+		face[i].vert[0].vertexIndex = 5 * M + j;
+		face[i].vert[1].vertexIndex = 5 * M + j + 1;
+		face[i].vert[2].vertexIndex = 7 * M + 1 + j;
+		face[i].vert[3].vertexIndex = 7 * M + j;
 
 		for (int k = 0; k < face[i].nVerts; k++)
 		{
@@ -970,12 +898,12 @@ void Mesh::veLK2lo1(int N, float doDay, float KhoangCachTam, float BKtrong, floa
 	for (int j = 0; j < M - 1; j++)
 	{
 		face[i].nVerts = 4;
-		face[i].vert = new VertexID[face[i].nVerts];
+		face[i].vert = new Vertex[face[i].nVerts];
 
-		face[i].vert[0].vertIndex = 6 * M + j;
-		face[i].vert[1].vertIndex = 6 * M + j + 1;
-		face[i].vert[2].vertIndex = 7 * M + 1 + j;
-		face[i].vert[3].vertIndex = 7 * M + j;
+		face[i].vert[0].vertexIndex = 6 * M + j;
+		face[i].vert[1].vertexIndex = 6 * M + j + 1;
+		face[i].vert[2].vertexIndex = 7 * M + 1 + j;
+		face[i].vert[3].vertexIndex = 7 * M + j;
 
 		for (int k = 0; k < face[i].nVerts; k++)
 		{
@@ -988,12 +916,12 @@ void Mesh::veLK2lo1(int N, float doDay, float KhoangCachTam, float BKtrong, floa
 	for (int j = 0; j < M - 1; j++)
 	{
 		face[i].nVerts = 4;
-		face[i].vert = new VertexID[face[i].nVerts];
+		face[i].vert = new Vertex[face[i].nVerts];
 
-		face[i].vert[0].vertIndex = 4 * M + j;
-		face[i].vert[1].vertIndex = 4 * M + j + 1;
-		face[i].vert[2].vertIndex = 5 * M + 1 + j;
-		face[i].vert[3].vertIndex = 5 * M + j;
+		face[i].vert[0].vertexIndex = 4 * M + j;
+		face[i].vert[1].vertexIndex = 4 * M + j + 1;
+		face[i].vert[2].vertexIndex = 5 * M + 1 + j;
+		face[i].vert[3].vertexIndex = 5 * M + j;
 
 		for (int k = 0; k < face[i].nVerts; k++)
 		{
@@ -1005,12 +933,12 @@ void Mesh::veLK2lo1(int N, float doDay, float KhoangCachTam, float BKtrong, floa
 
 	// mặt bên
 	face[i].nVerts = 4;
-	face[i].vert = new VertexID[face[i].nVerts];
+	face[i].vert = new Vertex[face[i].nVerts];
 
-	face[i].vert[0].vertIndex = 0;
-	face[i].vert[1].vertIndex = M;
-	face[i].vert[2].vertIndex = 5 * M;
-	face[i].vert[3].vertIndex = 4 * M;
+	face[i].vert[0].vertexIndex = 0;
+	face[i].vert[1].vertexIndex = M;
+	face[i].vert[2].vertexIndex = 5 * M;
+	face[i].vert[3].vertexIndex = 4 * M;
 
 	for (int k = 0; k < face[i].nVerts; k++)
 	{
@@ -1020,12 +948,12 @@ void Mesh::veLK2lo1(int N, float doDay, float KhoangCachTam, float BKtrong, floa
 	i++;
 
 	face[i].nVerts = 4;
-	face[i].vert = new VertexID[face[i].nVerts];
+	face[i].vert = new Vertex[face[i].nVerts];
 
-	face[i].vert[0].vertIndex = (M - 1) / 2;
-	face[i].vert[1].vertIndex = M + (M - 1) / 2;
-	face[i].vert[2].vertIndex = 5 * M + (M - 1) / 2;
-	face[i].vert[3].vertIndex = 4 * M + (M - 1) / 2;
+	face[i].vert[0].vertexIndex = (M - 1) / 2;
+	face[i].vert[1].vertexIndex = M + (M - 1) / 2;
+	face[i].vert[2].vertexIndex = 5 * M + (M - 1) / 2;
+	face[i].vert[3].vertexIndex = 4 * M + (M - 1) / 2;
 
 	for (int k = 0; k < face[i].nVerts; k++)
 	{
@@ -1038,12 +966,12 @@ void Mesh::veLK2lo1(int N, float doDay, float KhoangCachTam, float BKtrong, floa
 	for (int j = 0; j < M / 2 - 1; j++)
 	{
 		face[i].nVerts = 4;
-		face[i].vert = new VertexID[face[i].nVerts];
+		face[i].vert = new Vertex[face[i].nVerts];
 
-		face[i].vert[0].vertIndex = M / 2 + j;
-		face[i].vert[1].vertIndex = M / 2 + j + 1;
-		face[i].vert[2].vertIndex = 4 * M + M / 2 + 1 + j;
-		face[i].vert[3].vertIndex = 4 * M + M / 2 + j;
+		face[i].vert[0].vertexIndex = M / 2 + j;
+		face[i].vert[1].vertexIndex = M / 2 + j + 1;
+		face[i].vert[2].vertexIndex = 4 * M + M / 2 + 1 + j;
+		face[i].vert[3].vertexIndex = 4 * M + M / 2 + j;
 
 		for (int k = 0; k < face[i].nVerts; k++)
 		{
@@ -1056,12 +984,12 @@ void Mesh::veLK2lo1(int N, float doDay, float KhoangCachTam, float BKtrong, floa
 	for (int j = 0; j < M / 2 - 1; j++)
 	{
 		face[i].nVerts = 4;
-		face[i].vert = new VertexID[face[i].nVerts];
+		face[i].vert = new Vertex[face[i].nVerts];
 
-		face[i].vert[0].vertIndex = M + M / 2 + j;
-		face[i].vert[1].vertIndex = M + M / 2 + j + 1;
-		face[i].vert[2].vertIndex = 5 * M + M / 2 + 1 + j;
-		face[i].vert[3].vertIndex = 5 * M + M / 2 + j;
+		face[i].vert[0].vertexIndex = M + M / 2 + j;
+		face[i].vert[1].vertexIndex = M + M / 2 + j + 1;
+		face[i].vert[2].vertexIndex = 5 * M + M / 2 + 1 + j;
+		face[i].vert[3].vertexIndex = 5 * M + M / 2 + j;
 
 		for (int k = 0; k < face[i].nVerts; k++)
 		{
@@ -1071,9 +999,9 @@ void Mesh::veLK2lo1(int N, float doDay, float KhoangCachTam, float BKtrong, floa
 		i++;
 	}
 }
-#pragma endregion
+
 // thiết lập tham số
-#pragma region
+
 // cửa sổ màn hình
 int screenWidth = 1200;
 int screenHeight = 600;
@@ -1136,8 +1064,6 @@ float gocNhinLenXuong;
 float khoangCachNhin;
 float gocNhinX, gocNhinY, gocNhinZ;
 float nhinTrucX, nhinTrucY, nhinTrucZ;
-
-#pragma endregion
 
 void pressKeyBoard2(int key, int x, int y)
 {
@@ -1209,7 +1135,6 @@ void pressKeyBoard1(unsigned char key, int x, int y)
 	glutPostRedisplay();
 }
 
-#pragma region
 // vẽ nền
 void veNenDocTruc(float x, float y, float z, float R, float alpha)
 {
@@ -2359,7 +2284,6 @@ void trucBatGiac2()
 	glPopMatrix();
 }
 //
-#pragma endregion
 
 void drawObjects()
 {
@@ -2588,7 +2512,7 @@ void displayOptions()
 
 int main(int argc, char *argv[])
 {
-	int N = NUM / 2 + 1;
+	int N = 19;
 	glutInit(&argc, (char **)argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(screenWidth, screenHeight);
