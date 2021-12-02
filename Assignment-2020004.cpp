@@ -1,5 +1,4 @@
 // Truong Ngoc Trung Anh - 2020004
-
 #include <math.h>
 #include <iostream>
 #include <windows.h>
@@ -150,12 +149,13 @@ public:
 		slideX = 0;
 		slideY = 0;
 		slideZ = 0;
-		scaleX = 0;
-		scaleY = 0;
-		scaleZ = 0;
 		rotateX = 0;
 		rotateY = 0;
 		rotateZ = 0;
+		scaleX = 0;
+		scaleY = 0;
+		scaleZ = 0;
+
 	}
 	~Mesh()
 	{
@@ -170,18 +170,18 @@ public:
 		numVerts = 0;
 		numFaces = 0;
 	}
-	void DrawWireframe();
-	void SetColor(int colorIdx);
+	void veKhungDay();
+	// void SetColor(int colorIdx);
 	void veCanhQuat(int N, float rong, float cao, float banKinhNho);
 	void veGoiDo(int N, float chieuCao, float BKtrong, float BKngoai);
 	void veLK2lo1(int N, float doDay, float KhoangCachTam, float BKtrong, float BKngoai);
-	void veHinhTru(int N, float base1Height, float base1Radius);
+	void veHinhTru(int N, float chieuCao, float banKinh);
 	void CalculateFacesNorm();
 	void Draw();
 	void setupMaterial(float ambient[], float diffuse[], float specular[], float shiness);
 };
 
-void Mesh::DrawWireframe()
+void Mesh::veKhungDay()
 {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	for (int f = 0; f < numFaces; f++)
@@ -1002,20 +1002,12 @@ void Mesh::veLK2lo1(int N, float doDay, float KhoangCachTam, float BKtrong, floa
 
 // thiết lập tham số
 
-// cửa sổ màn hình
+// kích thước cửa sổ
 int screenWidth = 1200;
 int screenHeight = 600;
-// Tham so cua vat the
-float base1Radius = 0.8;
-float base1Height = 0.2;
-float base1RotateStep = 1;
-// banxoay
-float banxoayCao = 0.18;
-float banxoayBanKinh = 0.5;
+// offset goc xoay
 float gocXoay = 4;
-// tayquay
-float tayquayDai = 0.9 * banxoayBanKinh;
-float tayquayCao = banxoayCao * 0.8;
+
 // canhQuat1_1
 float banKinhBoTronCanhQuat = 0.2;
 // bán kính bo tròn
@@ -1053,17 +1045,18 @@ Mesh trucBatGiac;
 Mesh chot;
 Mesh chotMauHong;
 //
-double angle = 0;
-bool au = false;
 bool cheDoLuoi = false;
 bool doiCheDoNhin = false;
+double angle = 0;
+bool au = false;
 bool bLight1 = true;
 // khởi tạo tham số camera
 float gocNhin;
 float gocNhinLenXuong;
-float khoangCachNhin;
 float gocNhinX, gocNhinY, gocNhinZ;
 float nhinTrucX, nhinTrucY, nhinTrucZ;
+float khoangCachNhin;
+
 
 void pressKeyBoard2(int key, int x, int y)
 {
@@ -1341,24 +1334,6 @@ void veNen(float alpha)
 	glEnable(GL_LIGHTING);
 }
 
-void drawAxis()
-{
-	glColor3f(0, 0, 1);
-	glBegin(GL_LINES);
-	glColor3f(1, 0, 0);
-	glVertex3f(0, 0, 0); // x
-	glVertex3f(4, 0, 0);
-
-	glColor3f(0, 1, 0);
-	glVertex3f(0, 0, 0); // y
-	glVertex3f(0, 4, 0);
-
-	glColor3f(0, 0, 1);
-	glVertex3f(0, 0, 0); // z
-	glVertex3f(0, 0, 4);
-	glEnd();
-}
-
 void drawcanhQuat1_1()
 {
 	glPushMatrix();
@@ -1373,7 +1348,7 @@ void drawcanhQuat1_1()
 
 	if (cheDoLuoi)
 	{
-		canhQuat1_1.DrawWireframe();
+		canhQuat1_1.veKhungDay();
 	}
 	else
 	{
@@ -1396,7 +1371,7 @@ void drawcanhQuat1_2()
 	canhQuat1_2.setupMaterial(ambient, diffuse, specular, shininess);
 
 	if (cheDoLuoi)
-		canhQuat1_2.DrawWireframe();
+		canhQuat1_2.veKhungDay();
 	else
 		canhQuat1_2.Draw();
 
@@ -1416,7 +1391,7 @@ void drawcanhQuat1_3()
 	canhQuat1_2.setupMaterial(ambient, diffuse, specular, shininess);
 
 	if (cheDoLuoi)
-		canhQuat1_2.DrawWireframe();
+		canhQuat1_2.veKhungDay();
 	else
 		canhQuat1_2.Draw();
 
@@ -1438,7 +1413,7 @@ void drawcanhQuat2_1()
 	canhQuat1_1.setupMaterial(ambient, diffuse, specular, shininess);
 
 	if (cheDoLuoi)
-		canhQuat1_1.DrawWireframe();
+		canhQuat1_1.veKhungDay();
 	else
 		canhQuat1_1.Draw();
 
@@ -1458,7 +1433,7 @@ void drawcanhQuat2_2()
 	canhQuat1_2.setupMaterial(ambient, diffuse, specular, shininess);
 
 	if (cheDoLuoi)
-		canhQuat1_2.DrawWireframe();
+		canhQuat1_2.veKhungDay();
 	else
 		canhQuat1_2.Draw();
 
@@ -1478,7 +1453,7 @@ void drawcanhQuat2_3()
 	canhQuat1_3.setupMaterial(ambient, diffuse, specular, shininess);
 
 	if (cheDoLuoi)
-		canhQuat1_3.DrawWireframe();
+		canhQuat1_3.veKhungDay();
 	else
 		canhQuat1_3.Draw();
 
@@ -1501,7 +1476,7 @@ void drawcanhQuat3_1()
 	canhQuat1_1.setupMaterial(ambient, diffuse, specular, shininess);
 
 	if (cheDoLuoi)
-		canhQuat1_1.DrawWireframe();
+		canhQuat1_1.veKhungDay();
 	else
 		canhQuat1_1.Draw();
 
@@ -1521,7 +1496,7 @@ void drawcanhQuat3_2()
 	canhQuat1_2.setupMaterial(ambient, diffuse, specular, shininess);
 
 	if (cheDoLuoi)
-		canhQuat1_2.DrawWireframe();
+		canhQuat1_2.veKhungDay();
 	else
 		canhQuat1_2.Draw();
 
@@ -1541,7 +1516,7 @@ void drawcanhQuat3_3()
 	canhQuat1_3.setupMaterial(ambient, diffuse, specular, shininess);
 
 	if (cheDoLuoi)
-		canhQuat1_3.DrawWireframe();
+		canhQuat1_3.veKhungDay();
 	else
 		canhQuat1_3.Draw();
 
@@ -1561,7 +1536,7 @@ void veGoiDo1()
 	GLfloat shininess = 40.0;
 	goiDo.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		goiDo.DrawWireframe();
+		goiDo.veKhungDay();
 	else
 		goiDo.Draw();
 
@@ -1580,7 +1555,7 @@ void veGoiDo2()
 	GLfloat shininess = 40.0;
 	goiDo.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		goiDo.DrawWireframe();
+		goiDo.veKhungDay();
 	else
 		goiDo.Draw();
 
@@ -1599,7 +1574,7 @@ void veGoiDo3()
 	GLfloat shininess = 40.0;
 	goiDo.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		goiDo.DrawWireframe();
+		goiDo.veKhungDay();
 	else
 		goiDo.Draw();
 
@@ -1618,7 +1593,7 @@ void veGoiDo4()
 	GLfloat shininess = 40.0;
 	goiDo.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		goiDo.DrawWireframe();
+		goiDo.veKhungDay();
 	else
 		goiDo.Draw();
 
@@ -1637,7 +1612,7 @@ void veGoiDo5()
 	GLfloat shininess = 40.0;
 	goiDo.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		goiDo.DrawWireframe();
+		goiDo.veKhungDay();
 	else
 		goiDo.Draw();
 
@@ -1656,7 +1631,7 @@ void veGoiDo6()
 	GLfloat shininess = 40.0;
 	goiDo.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		goiDo.DrawWireframe();
+		goiDo.veKhungDay();
 	else
 		goiDo.Draw();
 
@@ -1675,7 +1650,7 @@ void veGoiDo7()
 	GLfloat shininess = 40.0;
 	goiDo.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		goiDo.DrawWireframe();
+		goiDo.veKhungDay();
 	else
 		goiDo.Draw();
 
@@ -1694,7 +1669,7 @@ void veGoiDo8()
 	GLfloat shininess = 40.0;
 	goiDo.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		goiDo.DrawWireframe();
+		goiDo.veKhungDay();
 	else
 		goiDo.Draw();
 
@@ -1712,7 +1687,7 @@ void veLK2lo11()
 	GLfloat shininess = 40.0;
 	LK2lo1.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		LK2lo1.DrawWireframe();
+		LK2lo1.veKhungDay();
 	else
 		LK2lo1.Draw();
 
@@ -1731,7 +1706,7 @@ void veLK2lo12()
 	GLfloat shininess = 40.0;
 	LK2lo1.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		LK2lo1.DrawWireframe();
+		LK2lo1.veKhungDay();
 	else
 		LK2lo1.Draw();
 
@@ -1750,7 +1725,7 @@ void veLK2lo13()
 	GLfloat shininess = 40.0;
 	LK2lo1.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		LK2lo1.DrawWireframe();
+		LK2lo1.veKhungDay();
 	else
 		LK2lo1.Draw();
 
@@ -1768,7 +1743,7 @@ void veLK2lo14()
 	GLfloat shininess = 40.0;
 	LK2lo2.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		LK2lo2.DrawWireframe();
+		LK2lo2.veKhungDay();
 	else
 		LK2lo2.Draw();
 
@@ -1787,7 +1762,7 @@ void veLK2lo15()
 	GLfloat shininess = 40.0;
 	LK2lo2.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		LK2lo2.DrawWireframe();
+		LK2lo2.veKhungDay();
 	else
 		LK2lo2.Draw();
 
@@ -1806,7 +1781,7 @@ void veLK2lo16()
 	GLfloat shininess = 40.0;
 	LK2lo2.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		LK2lo2.DrawWireframe();
+		LK2lo2.veKhungDay();
 	else
 		LK2lo2.Draw();
 
@@ -1825,7 +1800,7 @@ void veGoiDo9()
 	GLfloat shininess = 40.0;
 	goiDo.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		goiDo.DrawWireframe();
+		goiDo.veKhungDay();
 	else
 		goiDo.Draw();
 
@@ -1844,7 +1819,7 @@ void veGoiDo10()
 	GLfloat shininess = 40.0;
 	goiDo.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		goiDo.DrawWireframe();
+		goiDo.veKhungDay();
 	else
 		goiDo.Draw();
 
@@ -1863,7 +1838,7 @@ void veGoiDo11()
 	GLfloat shininess = 40.0;
 	goiDo.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		goiDo.DrawWireframe();
+		goiDo.veKhungDay();
 	else
 		goiDo.Draw();
 
@@ -1882,7 +1857,7 @@ void veGoiDo12()
 	GLfloat shininess = 40.0;
 	goiDo.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		goiDo.DrawWireframe();
+		goiDo.veKhungDay();
 	else
 		goiDo.Draw();
 
@@ -1901,7 +1876,7 @@ void veGoiDo13()
 	GLfloat shininess = 40.0;
 	goiDo.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		goiDo.DrawWireframe();
+		goiDo.veKhungDay();
 	else
 		goiDo.Draw();
 
@@ -1920,7 +1895,7 @@ void veGoiDo14()
 	GLfloat shininess = 40.0;
 	goiDo.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		goiDo.DrawWireframe();
+		goiDo.veKhungDay();
 	else
 		goiDo.Draw();
 
@@ -1939,7 +1914,7 @@ void veGoiDo15()
 	GLfloat shininess = 40.0;
 	goiDo.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		goiDo.DrawWireframe();
+		goiDo.veKhungDay();
 	else
 		goiDo.Draw();
 
@@ -1958,7 +1933,7 @@ void veGoiDo16()
 	GLfloat shininess = 40.0;
 	goiDo.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		goiDo.DrawWireframe();
+		goiDo.veKhungDay();
 	else
 		goiDo.Draw();
 
@@ -1979,7 +1954,7 @@ void veTrucTo1()
 	chot.setupMaterial(ambient, diffuse, specular, shininess);
 
 	if (cheDoLuoi)
-		chot.DrawWireframe();
+		chot.veKhungDay();
 	else
 		chot.Draw();
 
@@ -2000,7 +1975,7 @@ void veTrucTo2()
 	chot.setupMaterial(ambient, diffuse, specular, shininess);
 
 	if (cheDoLuoi)
-		chot.DrawWireframe();
+		chot.veKhungDay();
 	else
 		chot.Draw();
 
@@ -2021,7 +1996,7 @@ void veChotLKMauHong1()
 	chotMauHong.setupMaterial(ambient, diffuse, specular, shininess);
 
 	if (cheDoLuoi)
-		chotMauHong.DrawWireframe();
+		chotMauHong.veKhungDay();
 	else
 		chotMauHong.Draw();
 
@@ -2039,7 +2014,7 @@ void veChotLKMauHong2()
 	chotMauHong.setupMaterial(ambient, diffuse, specular, shininess);
 
 	if (cheDoLuoi)
-		chotMauHong.DrawWireframe();
+		chotMauHong.veKhungDay();
 	else
 		chotMauHong.Draw();
 
@@ -2057,7 +2032,7 @@ void veChotLKMauHong3()
 	chotMauHong.setupMaterial(ambient, diffuse, specular, shininess);
 
 	if (cheDoLuoi)
-		chotMauHong.DrawWireframe();
+		chotMauHong.veKhungDay();
 	else
 		chotMauHong.Draw();
 	glPopMatrix();
@@ -2072,7 +2047,7 @@ void veChotLKMauHong4()
 	GLfloat shininess = 40.0;
 	chotMauHong.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		chotMauHong.DrawWireframe();
+		chotMauHong.veKhungDay();
 	else
 		chotMauHong.Draw();
 	glPopMatrix();
@@ -2088,7 +2063,7 @@ void veChotLKMauHong5()
 	GLfloat shininess = 40.0;
 	chotMauHong.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
-		chotMauHong.DrawWireframe();
+		chotMauHong.veKhungDay();
 	else
 		chotMauHong.Draw();
 	glPopMatrix();
@@ -2104,7 +2079,7 @@ void veChotLKMauHong6()
 	chotMauHong.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
 	{
-		chotMauHong.DrawWireframe();
+		chotMauHong.veKhungDay();
 	}
 	else
 	{
@@ -2124,7 +2099,7 @@ void veChotLKMauHong7()
 	chotMauHong.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
 	{
-		chotMauHong.DrawWireframe();
+		chotMauHong.veKhungDay();
 	}
 	else
 	{
@@ -2144,7 +2119,7 @@ void veChotLKMauHong8()
 	chotMauHong.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
 	{
-		chotMauHong.DrawWireframe();
+		chotMauHong.veKhungDay();
 	}
 	else
 	{
@@ -2166,7 +2141,7 @@ void veChotLKMauHong9()
 
 	if (cheDoLuoi)
 	{
-		chotMauHong.DrawWireframe();
+		chotMauHong.veKhungDay();
 	}
 	else
 	{
@@ -2188,7 +2163,7 @@ void veChotLKMauHong10()
 
 	if (cheDoLuoi)
 	{
-		chotMauHong.DrawWireframe();
+		chotMauHong.veKhungDay();
 	}
 	else
 	{
@@ -2208,7 +2183,7 @@ void veChotLKMauHong11()
 	chotMauHong.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
 	{
-		chotMauHong.DrawWireframe();
+		chotMauHong.veKhungDay();
 	}
 	else
 	{
@@ -2230,7 +2205,7 @@ void veChotLKMauHong12()
 
 	if (cheDoLuoi)
 	{
-		chotMauHong.DrawWireframe();
+		chotMauHong.veKhungDay();
 	}
 	else
 	{
@@ -2255,7 +2230,7 @@ void trucBatGiac1()
 
 	if (cheDoLuoi)
 	{
-		trucBatGiac.DrawWireframe();
+		trucBatGiac.veKhungDay();
 	}
 	else
 	{
@@ -2275,7 +2250,7 @@ void trucBatGiac2()
 	trucBatGiac.setupMaterial(ambient, diffuse, specular, shininess);
 	if (cheDoLuoi)
 	{
-		trucBatGiac.DrawWireframe();
+		trucBatGiac.veKhungDay();
 	}
 	else
 	{
@@ -2341,7 +2316,7 @@ void drawObjects()
 	veLK2lo16();
 }
 
-void myDisplay()
+void displaySettings()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	GLfloat light_position0[] = {10.0, 10.0, 10.0, 0.0};
@@ -2350,10 +2325,10 @@ void myDisplay()
 	if (bLight1 == true)
 	{
 		glEnable(GL_LIGHT1);
-		GLfloat diffuse1[] = {1.0, 1.0, 1.0, 1.0};
-		GLfloat specular1[] = {1.0, 1.0, 1.0, 1.0};
 		GLfloat ambient1[] = {0.0, 0.0, 0.0, 1.0};
 		GLfloat position1[] = {-10.0, 10.0, -10.0, 0.0};
+		GLfloat diffuse1[] = {1.0, 1.0, 1.0, 1.0};
+		GLfloat specular1[] = {1.0, 1.0, 1.0, 1.0};
 
 		glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse1);
 		glLightfv(GL_LIGHT1, GL_AMBIENT, ambient1);
@@ -2502,12 +2477,12 @@ void displayOptions()
 		 << "2: Xoay canh quat cung chieu kim dong ho" << endl
 		 << "W, w : Chuyen doi qua lai giua che do khung giay va to mau" << endl
 		 << "V, v : Chuyen doi che do nhin" << endl
-		 << "+ : Tang giam khoang cach camera" << endl
+		 << "+ : Tang khoang cach camera" << endl
 		 << "- : Giam khoang cach camera" << endl
 		 << "up arrow : Tang chieu cao camera" << endl
 		 << "down arrow : Giam chieu cao camera" << endl
-		 << "<- : Quay camera theo chieu kim dong ho" << endl
-		 << "-> : Quay camera nguoc chieu kim dong ho" << endl;
+		 << "-> : Quay camera theo chieu kim dong ho" << endl
+		 << "<- : Quay camera nguoc chieu kim dong ho" << endl;
 }
 
 int main(int argc, char *argv[])
@@ -2523,7 +2498,7 @@ int main(int argc, char *argv[])
 	initProject();
 	glutKeyboardFunc(pressKeyBoard1);
 	glutSpecialFunc(pressKeyBoard2);
-	glutDisplayFunc(myDisplay);
+	glutDisplayFunc(displaySettings);
 	glutMainLoop();
 	return 0;
 }
